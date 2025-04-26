@@ -1,27 +1,73 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import CssBaseline from '@mui/material/CssBaseline';
+import Navbar from './components/Navbar';
+import Home from './components/Home';
+import Login from './components/Login';
+import SignUp from './components/SignUp';
+import HandymanSignUp from './components/HandymanSignUp';
+import HandymanProfile from './components/HandymanProfile';
+import HandymanDetails from './components/HandymanDetails';
+import HandymenList from './components/HandymenList';
+import Bookings from './components/Bookings';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-function App() {
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+});
+
+const PrivateRoute = ({ children }) => {
+  const { currentUser } = useAuth();
+  return currentUser ? children : <Navigate to="/login" />;
+};
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js 123</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Login
-        </a>
-      </header>
-      
-
-</div>
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <CssBaseline />
+        <AuthProvider>
+          <Router>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/handyman-signup" element={<HandymanSignUp />} />
+              <Route path="/handymen" element={<HandymenList />} />
+              <Route path="/handyman/:id" element={<HandymanDetails />} />
+              <Route 
+                path="/handyman-profile" 
+                element={
+                  <PrivateRoute>
+                    <HandymanProfile />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/bookings" 
+                element={
+                  <PrivateRoute>
+                    <Bookings />
+                  </PrivateRoute>
+                } 
+              />
+            </Routes>
+          </Router>
+        </AuthProvider>
+      </LocalizationProvider>
+    </ThemeProvider>
   );
-}
+};
 
 export default App;
